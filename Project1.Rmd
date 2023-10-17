@@ -1,0 +1,125 @@
+---
+title: 'Project 1'
+author: "Mora"
+date: "15/10/2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Henderson and Velleman (1981) comment in a footnote to Table 1: ‘Hocking [original transcriber]'s noncrucial coding of the Mazda's rotary engine as a straight six-cylinder engine and the Porsche's flat engine as a V engine, as well as the inclusion of the diesel Mercedes 240D, have been retained to enable direct comparisons to be made with previous analyses.’
+
+Source: [Source](https://www.jstor.org/stable/2530428?typeAccessWorkflow=login)
+
+```{r cars}
+data(mtcars)
+summary(mtcars)
+```
+
+# Data visualization
+
+## 1. Scatter Plot: mpg vs hp
+
+To study the relationship between Miles per Gallon and the Horsepower I perform an Scatter plot plus adding a smooth line with a shaded area to represent the confidence interval.
+
+```{r pressure, echo=FALSE, fig.align='center'}
+library(ggplot2)
+ggplot(mtcars, aes(x = mpg, y = hp)) +
+  geom_count(color='#FFAB91') +
+  geom_smooth(se=TRUE, color='#7E57C2') +
+  ggtitle('Miles per gallon vs Gross Horsepower')
+```
+
+Notice the plot seems to indicate a negative correlation between hp and mpg. Specially at the range mpg=(13,23) we see as mpg increases, hp decreases with the highest confidence and rate.
+
+
+## 2. Bar plot: Number of cylinders count
+
+
+```{r, fig.width=4, fig.height=3,fig.align='center'}
+ggplot(data = mtcars) +
+  geom_bar(aes(x = factor(cyl), y = ..count..), fill = "#B39DDB", width= 0.5)+
+  labs(x='Number of cylinders', y='Count')
+
+```
+
+We can see in the bar plot the most frequent number of cylinders is 8, then 5 and lastly 6
+
+
+## 3. Box plot: mpg vs gear
+
+To study the relationship between miles per gallon and number of forward gears, I study a Box plot with mpf and groups of gear.
+  
+```{r, fig.width=5, fig.height=3, echo=FALSE, fig.align='center'}
+box_plot_mpg_gear <- ggplot(data = mtcars, aes(x = factor(gear), y = mpg, group = gear, fill = factor(gear))) +
+  geom_boxplot() +
+  labs(x = 'Gear', y = 'Miles per Gallon',fill = 'Gear Groups') +
+  scale_fill_manual(values = c("#CCCCFF", "#6633FF", "#CC99FF"))
+
+box_plot_mpg_gear
+
+```
+
+We notice at 4 and 5 number of forward gears, there is an increase on miles per gallon
+So it seems that there is a positive correlation between the different Gear Groups and mpg
+However, 4 gears seems to be slightly more increased compared to Gear.
+
+# Statistical Analysis
+
+## 4. Descriptive analysis of mpg
+
+```{r}
+mpg_mean <- mean(mtcars$mpg)
+cat('mpg mean:', mpg_mean, '\n\n')
+
+mpg_median <- median(mtcars$mpg)
+cat('mpg median:', mpg_median, '\n\n')
+
+
+mpg_sd <- sd(mtcars$mpg)
+cat('mpg standard deviation:', mpg_sd)
+
+```
+
+## 5. Correlation analysis between mpg and hp
+
+In the Scatter plot we noticed a negative correlation between mpg and hp. In order to further study this, we look for the correlation coefficient:
+
+```{r}
+
+corr_mpg_hp <- cor(mtcars$hp,mtcars$mpg)
+cat('Correlation coefficient between mpg and hp: ',corr_mpg_hp,'\n')
+
+cat('p-value: ',cor.test(mtcars$hp,mtcars$mpg)$p.value)
+
+
+```
+
+
+## 6. t-test:  Mean "mpg" of cars with 4 and 6 cylinders
+
+```{r}
+with(mtcars, t.test(mpg[cyl==6],mpg[cyl==4]))
+
+```
+
+
+After performing a t-test to compare the mpg mean between automobiles with 4 and 6 cylinders.
+The p-value is < 0.05 and t-value is = -4.7191
+
+
+## 7. Linear regression to predict mgp based on hp
+
+```{r}
+model.fit <- lm(mpg~hp,data=mtcars)
+cat('Summary of the model fit:\n')
+summary(model.fit)
+```
+
+Based on the analysis of the linear regression to predict mpg based on hp, we see with high confidence (p-value <0.05), that the Miles per Gallon can be predicted with the model:
+
+**mpg = 30.09886 -0.06823 · hp + error**
